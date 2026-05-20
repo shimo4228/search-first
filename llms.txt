@@ -6,13 +6,14 @@
 
 - [llms-full.txt](llms-full.txt): self-contained Q&A reference for AI agents (Project Facts, Prior Research, 9 question-form H2 sections)
 - [README.md](README.md): human-facing narrative (install, decision matrix, worked example)
-- [SKILL.md](skills/search-first/SKILL.md): full skill specification — trigger conditions, 5-step workflow, decision matrix, quick mode vs full mode
+- [SKILL.md](skills/search-first/SKILL.md): full skill specification — trigger conditions, 6-step workflow (Step 0 articulation + 5-step decision pipeline), decision matrix, quick mode vs full mode, skip-research handling
 
 ## Architecture
 
-- 5-step workflow: Need Analysis → Parallel Search → Evaluate → Decide → Implement
+- 6-step workflow: **Step 0 Articulate** (mandatory user-visible text output before any tool call) → 1. Need Analysis → 2. Parallel Search → 3. Evaluate → 4. Decide → 5. Implement
 - 4-way decision matrix: **Adopt** (exact match, well-maintained, MIT/Apache), **Extend** (partial match, thin wrapper), **Compose** (multiple small packages), **Build** (nothing suitable, informed by research)
 - Parallel search targets: npm registry, PyPI, MCP servers, GitHub, existing skills
+- Skip-research handling: when the user explicitly says "don't research", the agent emits a one-paragraph trade-off acknowledgement instead of silent skip — preserves the user's intent while keeping the course-correct window open
 
 ## Standard reference
 

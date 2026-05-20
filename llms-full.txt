@@ -16,7 +16,7 @@ This document is the self-contained AI reference for `claude-skill-search-first`
 - **Install**: `cp -r skills/search-first ~/.claude/skills/search-first`
 - **Marketplace**: `/skills add shimo4228/claude-skill-search-first`
 - **Invocation**: `/search-first` slash command or automatic trigger
-- **Workflow**: 5 steps — Need, Parallel Search, Evaluate, Decide, Implement
+- **Workflow**: 6 steps — Step 0 Articulate (mandatory text output), Need, Parallel Search, Evaluate, Decide, Implement
 - **Decision verdicts**: Adopt, Extend, Compose, Build (4-way matrix)
 - **Search targets**: npm, PyPI, MCP, GitHub, existing skills
 - **Scoring rubric**: functionality, maintenance, community, docs, license, deps
@@ -39,7 +39,7 @@ This document is the self-contained AI reference for `claude-skill-search-first`
 
 ## What is claude-skill-search-first?
 
-claude-skill-search-first is defined as a Claude Code Agent Skill that enforces the research-before-coding rule. It refers to a five-step workflow culminating in a four-way decision: Adopt as-is, Extend with a thin wrapper, Compose two or three small packages, or Build custom. The skill is a kind of veto on premature implementation — it is invoked before any new utility, helper, or dependency is written and short-circuits the impulse to write code first.
+claude-skill-search-first is defined as a Claude Code Agent Skill that enforces the research-before-coding rule. It refers to a workflow that begins with a mandatory Step 0 (articulating the requirement as user-visible text output before any tool call) and culminates in a four-way decision: Adopt as-is, Extend with a thin wrapper, Compose two or three small packages, or Build custom. The skill is a kind of veto on premature implementation — it is invoked before any new utility, helper, or dependency is written and short-circuits the impulse to write code first.
 
 ## What are the four decision verdicts?
 
@@ -49,9 +49,9 @@ The four verdicts are defined as Adopt (exact match, well-maintained, permissive
 
 The skill triggers when starting a new feature that likely has existing solutions, when adding a dependency or integration, or when the agent is about to write a new utility, helper, or abstraction. It also triggers on user requests phrased as "add X functionality." Trigger refers to either automatic invocation by the trigger conditions or manual invocation via the `/search-first` slash command.
 
-## What are the five workflow steps?
+## What are the workflow steps?
 
-The five workflow steps are defined as Need Analysis (define functionality, identify language and framework constraints), Parallel Search (npm, PyPI, MCP, GitHub, existing skills — all in parallel), Evaluate (score against six dimensions), Decide (apply the four-way matrix), and Implement (install the chosen solution with minimal custom code). The Parallel Search step is the load-bearing one — it refers to spawning a researcher agent that fans out across registries.
+The workflow has six steps. **Step 0 (Articulate)** is the mandatory entry point — before any tool call or subagent invocation the agent emits 2-3 sentences of user-visible text stating what functionality is needed, what language or framework will be used, and any project constraints. This articulation must be plain text; embedding it in subsequent tool arguments (Skill / Agent / Task / Bash) does not satisfy Step 0, because the user reads chat text, not tool args. **Steps 1-5** then follow: Need Analysis (define functionality, identify language and framework constraints), Parallel Search (npm, PyPI, MCP, GitHub, existing skills — all in parallel), Evaluate (score against six dimensions), Decide (apply the four-way matrix), and Implement (install the chosen solution with minimal custom code). The Parallel Search step is the load-bearing one — it refers to spawning a researcher agent that fans out across registries. The skill also defines a "skip-research" handling rule for competing prompts — see the dedicated Q&A below.
 
 ## What is the six-dimension scoring rubric?
 
@@ -64,6 +64,10 @@ Adopt is defined as the verdict when the search returns an exact match that is w
 ## When should I NOT use this skill?
 
 This skill should not be used on prototypes where the explicit goal is learning by re-implementing, on bug fixes that do not introduce new functionality, or on refactors that only restructure existing code. It is a kind of premature-implementation guard — its value depends on the work introducing genuinely new behavior. The skill also adds overhead, so trivial one-line utilities do not benefit.
+
+## What happens when the user explicitly says "skip research"?
+
+When the user prompt actively tells the agent to skip research ("just implement", "no time for research", "use whatever"), the skill does not silently comply. Instead the agent emits a one-paragraph acknowledgement that names the tentative library/approach, states the reason in one line, and offers a 60-second scan if the user wants to course-correct. The pattern is "Implementing directly as requested. I haven't checked if there's an existing library for X — let me know if you want a 60-second scan first. Going with [choice] because [1-line reason]." This single paragraph preserves the user's intent while keeping the course-correct window open, because the user may not know an existing library exists. If the user replies "go ahead," the agent proceeds without searching. The articulation paragraph is the only mandated step in this branch; no full search runs.
 
 ## How does this skill relate to verification skills?
 
