@@ -1,5 +1,8 @@
 ---
-description: Research-before-coding workflow. Search for existing tools, libraries, and patterns before writing custom code. Invokes the researcher agent.
+name: search-first
+description: "Research before writing code for any new feature, integration, library selection, or utility — search npm / PyPI / MCP / GitHub / existing skills for solutions instead of building from scratch. Use whenever the user says 'add X functionality', 'implement Y', 'set up Z', 'integrate W', asks 'what library should I use for...', 'is there a package/client/MCP for...', proposes a specific tool while open to alternatives, or invokes the planning.md Phase 0 External Research step. Especially use when the task adds a dependency, picks between tools, or builds a utility (parser, checker, converter, linter, CI step, E2E framework, payment / auth / API client) that likely already exists. DO NOT use for: bug fixes in existing code, refactoring, config value edits, file summarization, or throwaway one-shot scripts where the approach is already fully specified by the user."
+user-invocable: true
+origin: shimo4228
 ---
 
 # /search-first — Research Before You Code
@@ -22,15 +25,15 @@ Use this skill when:
 │     Define what functionality is needed      │
 │     Identify language/framework constraints  │
 ├─────────────────────────────────────────────┤
-│  2. PARALLEL SEARCH (researcher agent)      │
+│  2. PARALLEL SEARCH (scout agent)      │
 │     ┌──────────┐ ┌──────────┐ ┌──────────┐  │
 │     │  npm /   │ │  MCP /   │ │  GitHub / │  │
 │     │  PyPI    │ │  Skills  │ │  Web      │  │
 │     └──────────┘ └──────────┘ └──────────┘  │
 ├─────────────────────────────────────────────┤
 │  3. EVALUATE                                │
-│     Score candidates (functionality, maint, │
-│     community, docs, license, deps)         │
+│     Holistic assessment: functionality,     │
+│     maintenance, community, docs, license   │
 ├─────────────────────────────────────────────┤
 │  4. DECIDE                                  │
 │     ┌─────────┐  ┌──────────┐  ┌─────────┐  │
@@ -57,16 +60,28 @@ Use this skill when:
 
 ### Quick Mode (inline)
 
-Before writing a utility or adding functionality, mentally run through:
+#### Step 0: Articulate the requirement (mandatory, text output)
 
+Before any tool call or subagent invocation, output 2-3 sentences that state:
+- **What functionality is needed** (concretely, not just "X support")
+- **Language / framework** the implementation will use
+- **Project-specific constraints** if any (existing deps, performance limits, license requirements)
+
+Why: this externalizes the search query so the user can redirect early, and makes the record auditable. Don't think it silently — write it. If you skip this step the user can't tell whether you searched the wrong thing.
+
+**Format requirement**: the articulation must be **user-visible assistant text**, NOT embedded in subsequent tool arguments (Skill / Agent / Task / Bash). A scout / skill invocation whose `args` contains the requirement description does NOT satisfy Step 0 — the user reads chat text, not tool args. Emit the articulation as plain text first, then invoke tools whose args can mirror the same content if needed.
+
+#### Step 1: Run the search checklist
+
+0. Does this already exist in the repo? → `rg` through relevant modules/tests first
 1. Is this a common problem? → Search npm/PyPI
 2. Is there an MCP for this? → Check `~/.claude/settings.json` and search
 3. Is there a skill for this? → Check `~/.claude/skills/`
-4. Is there a GitHub template? → Search GitHub
+4. Is there a GitHub implementation/template? → Run GitHub code search for maintained OSS before writing net-new code
 
 ### Full Mode (agent)
 
-For non-trivial functionality, launch the researcher agent:
+For non-trivial functionality, **first complete Step 0 above (articulate the requirement as text)**, then launch the scout agent — the agent's prompt should mirror the articulation, not replace it:
 
 ```
 Task(subagent_type="general-purpose", prompt="
@@ -80,6 +95,12 @@ Task(subagent_type="general-purpose", prompt="
 ```
 
 ## Search Shortcuts by Category
+
+### Content & Publishing
+- Markdown processing → `remark`, `unified`, `markdown-it`
+- Cross-posting → Check platform APIs (Qiita, Dev.to, Medium)
+- Image optimization → `sharp`, `imagemin`
+- SEO → Platform-specific guidelines
 
 ### Development Tooling
 - Linting → `eslint`, `ruff`, `textlint`, `markdownlint`
@@ -97,20 +118,16 @@ Task(subagent_type="general-purpose", prompt="
 - Validation → `zod` (TS), `pydantic` (Python)
 - Database → Check for MCP servers first
 
-### Content & Publishing
-- Markdown processing → `remark`, `unified`, `markdown-it`
-- Image optimization → `sharp`, `imagemin`
-
 ## Integration Points
 
 ### With planner agent
-The planner should invoke researcher before Phase 1 (Architecture Review):
-- Researcher identifies available tools
+The planner should invoke scout before Phase 1 (Architecture Review):
+- Scout identifies available tools
 - Planner incorporates them into the implementation plan
 - Avoids "reinventing the wheel" in the plan
 
 ### With architect agent
-The architect should consult researcher for:
+The architect should consult scout for:
 - Technology stack decisions
 - Integration pattern discovery
 - Existing reference architectures
@@ -127,28 +144,38 @@ Combine for progressive discovery:
 ```
 Need: Check markdown files for broken links
 Search: npm "markdown dead link checker"
-Found: textlint-rule-no-dead-link (score: 9/10)
-Action: ADOPT — npm install textlint-rule-no-dead-link
+Found: textlint-rule-no-dead-link — active maintenance, MIT, covers all link types
+Verdict: ADOPT — npm install textlint-rule-no-dead-link
 Result: Zero custom code, battle-tested solution
 ```
 
-### Example 2: "Add HTTP client wrapper"
+### Example 2: "Add Qiita cross-posting"
 ```
-Need: Resilient HTTP client with retries and timeout handling
-Search: npm "http client retry", PyPI "httpx retry"
-Found: got (Node) with retry plugin, httpx (Python) with built-in retry
-Action: ADOPT — use got/httpx directly with retry config
-Result: Zero custom code, production-proven libraries
+Need: Convert Zenn markdown to Qiita format and publish
+Search: npm "zenn qiita", PyPI "qiita api"
+Found: No complete solution — partial wrappers exist but unmaintained
+Verdict: BUILD — but informed by Qiita API docs (via Context7)
+Result: Minimal custom publish.py, using httpx + frontmatter packages
 ```
 
-### Example 3: "Add config file linter"
+### Example 3: "Add terminology consistency"
 ```
-Need: Validate project config files against a schema
-Search: npm "config linter schema", "json schema validator cli"
-Found: ajv-cli (score: 8/10)
-Action: ADOPT + EXTEND — install ajv-cli, write project-specific schema
-Result: 1 package + 1 schema file, no custom validation logic
+Need: Enforce consistent technical terms in Japanese articles
+Search: npm "proofreading", textlint rules
+Found: textlint-rule-prh — dictionary-based checker, needs custom YAML config
+Verdict: EXTEND — install prh, write custom dictionary (prh.yml)
+Result: 1 package + 1 config file, no custom code
 ```
+
+## When the user says "skip research"
+
+If the user prompt explicitly tells you to skip research ("just implement", "no time for research", "use whatever"), you still output one short paragraph before implementing:
+
+> "Implementing directly as requested. I haven't checked if there's an existing library for X — let me know if you want a 60-second scan first. Going with [your tentative choice] because [1-line reason]."
+
+Why: the user might not know an existing library exists. Silent skip removes their chance to course-correct. This single paragraph preserves their intent (you don't research) while making the tradeoff visible.
+
+Do NOT use this as an excuse to do full research anyway. The articulation is the only step; if the user replies "go ahead", proceed without searching.
 
 ## Anti-Patterns
 
