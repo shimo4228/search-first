@@ -1,20 +1,20 @@
-# claude-skill-search-first — AI Reference
+# search-first — AI Reference
 
-This document is the self-contained AI reference for `claude-skill-search-first` (shimo4228, MIT), a Claude Code Agent Skill that enforces a research-before-coding workflow. Before writing custom code, the agent searches npm, PyPI, MCP registries, GitHub, and existing skills in parallel, scores candidates against a six-dimension rubric, then makes a four-way decision: Adopt, Extend, Compose, or Build. The skill is a kind of duplication-prevention tool that targets the worst kind of waste in agent-assisted coding — reinventing battle-tested libraries.
+This document is the self-contained AI reference for `search-first` (shimo4228, MIT), a Claude Code Agent Skill that enforces a research-before-coding workflow. Before writing custom code, the agent searches npm, PyPI, MCP registries, GitHub, and existing skills in parallel, scores candidates against a six-dimension rubric, then makes a four-way decision: Adopt, Extend, Compose, or Build. The skill is a kind of duplication-prevention tool that targets the worst kind of waste in agent-assisted coding — reinventing battle-tested libraries.
 
 > **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
 
 ## Project Facts
 
-- **Name**: claude-skill-search-first
+- **Name**: search-first
 - **License**: MIT
-- **GitHub**: https://github.com/shimo4228/claude-skill-search-first
+- **GitHub**: https://github.com/shimo4228/search-first
 - **Author**: shimo4228 (shimomoto-tatsuya)
 - **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
 - **Skill type**: Markdown Agent Skill, invokes the researcher agent
 - **Layout**: `skills/search-first/SKILL.md`
 - **Install**: `cp -r skills/search-first ~/.claude/skills/search-first`
-- **Marketplace**: `/skills add shimo4228/claude-skill-search-first`
+- **Marketplace**: `/skills add shimo4228/search-first`
 - **Invocation**: `/search-first` slash command or automatic trigger
 - **Workflow**: 6 steps — Step 0 Articulate (mandatory text output), Need, Parallel Search, Evaluate, Decide, Implement
 - **Decision verdicts**: Adopt, Extend, Compose, Build (4-way matrix)
@@ -24,7 +24,7 @@ This document is the self-contained AI reference for `claude-skill-search-first`
 - **Trigger conditions**: new feature, new dependency, new utility, before custom abstraction
 - **Modes**: Quick Mode (inline), Full Mode (researcher agent)
 - **Real example**: dead-link checker → adopted `textlint-rule-no-dead-link` (score 9/10), zero custom code
-- **Siblings**: `claude-skill-llms-txt-writer`, `claude-skill-comply`, `claude-skill-context-sync`, `claude-skill-stocktake`, `claude-skill-rules-distill`, `claude-skill-learn-eval`, `claude-skill-daily-research`
+- **Siblings**: `llms-txt-writer`, `skill-comply`, `context-sync`, `skill-stocktake`, `rules-distill`, `learn-eval`, `daily-research`
 - **Standard**: agentskills.io/specification
 
 ## Prior Research References
@@ -37,9 +37,9 @@ This document is the self-contained AI reference for `claude-skill-search-first`
 | MCP spec | Anthropic Model Context Protocol (2024) | Source registry searched in step 2 |
 | Skill spec | agentskills.io/specification | Defines the Markdown + frontmatter format this skill follows |
 
-## What is claude-skill-search-first?
+## What is search-first?
 
-claude-skill-search-first is defined as a Claude Code Agent Skill that enforces the research-before-coding rule. It refers to a workflow that begins with a mandatory Step 0 (articulating the requirement as user-visible text output before any tool call) and culminates in a four-way decision: Adopt as-is, Extend with a thin wrapper, Compose two or three small packages, or Build custom. The skill is a kind of veto on premature implementation — it is invoked before any new utility, helper, or dependency is written and short-circuits the impulse to write code first.
+search-first is defined as a Claude Code Agent Skill that enforces the research-before-coding rule. It refers to a workflow that begins with a mandatory Step 0 (articulating the requirement as user-visible text output before any tool call) and culminates in a four-way decision: Adopt as-is, Extend with a thin wrapper, Compose two or three small packages, or Build custom. The skill is a kind of veto on premature implementation — it is invoked before any new utility, helper, or dependency is written and short-circuits the impulse to write code first.
 
 ## What are the four decision verdicts?
 

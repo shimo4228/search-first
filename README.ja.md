@@ -1,6 +1,6 @@
 Language: [English](README.md) | 日本語
 
-# claude-skill-search-first
+# search-first
 
 **リサーチ・ファースト**のワークフローを強制する [Agent Skill](https://agentskills.io/specification) です。カスタムコードを書く前に、既存のツール、ライブラリ、MCP サーバー、パターンを検索し、情報に基づいた Adopt（採用）/ Extend（拡張）/ Build（自作）の判断を下します。
 
@@ -16,7 +16,7 @@ cp -r skills/search-first ~/.claude/skills/search-first
 ### SkillsMP
 
 ```bash
-/skills add shimo4228/claude-skill-search-first
+/skills add shimo4228/search-first
 ```
 
 ## 仕組み

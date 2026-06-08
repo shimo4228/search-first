@@ -1,6 +1,6 @@
 Language: English | [日本語](README.ja.md)
 
-# claude-skill-search-first
+# search-first
 
 An [Agent Skill](https://agentskills.io/specification) that enforces a **research-before-coding** workflow. Before writing custom code, the agent searches for existing tools, libraries, MCP servers, and patterns — then makes an informed adopt/extend/build decision.
 
@@ -16,7 +16,7 @@ cp -r skills/search-first ~/.claude/skills/search-first
 ### SkillsMP
 
 ```bash
-/skills add shimo4228/claude-skill-search-first
+/skills add shimo4228/search-first
 ```
 
 ## How It Works
