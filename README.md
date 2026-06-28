@@ -2,7 +2,7 @@ Language: English | [日本語](README.ja.md)
 
 # search-first
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/search-first)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/search-first) [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/shimo4228/search-first)](https://gitmcp.io/shimo4228/search-first)
 
 An [Agent Skill](https://agentskills.io/specification) that enforces a **research-before-coding** workflow. Before writing custom code, the agent searches for existing tools, libraries, MCP servers, and patterns — then makes an informed adopt/extend/build decision.
 

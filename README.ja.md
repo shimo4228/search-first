@@ -2,7 +2,7 @@ Language: [English](README.md) | 日本語
 
 # search-first
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/search-first)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/shimo4228/search-first) [![GitMCP](https://img.shields.io/endpoint?url=https://gitmcp.io/badge/shimo4228/search-first)](https://gitmcp.io/shimo4228/search-first)
 
 **リサーチ・ファースト**のワークフローを強制する [Agent Skill](https://agentskills.io/specification) です。カスタムコードを書く前に、既存のツール、ライブラリ、MCP サーバー、パターンを検索し、情報に基づいた Adopt（採用）/ Extend（拡張）/ Build（自作）の判断を下します。
 
