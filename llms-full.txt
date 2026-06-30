@@ -1,6 +1,6 @@
 # search-first — AI Reference
 
-This document is the self-contained AI reference for `search-first` (shimo4228, MIT), a Claude Code Agent Skill that enforces a research-before-coding workflow. Before writing custom code, the agent searches npm, PyPI, MCP registries, GitHub, and existing skills in parallel, scores candidates against a six-dimension rubric, then makes a four-way decision: Adopt, Extend, Compose, or Build. The skill is a kind of duplication-prevention tool that targets the worst kind of waste in agent-assisted coding — reinventing battle-tested libraries.
+This document is the self-contained AI reference for `search-first` (shimo4228, MIT), a Claude Code Agent Skill that enforces a research-before-coding workflow. Before writing custom code, the agent articulates the requirement as user-visible text, searches by source priority (this repo, npm, PyPI, MCP registries, installed skills, GitHub), evaluates candidates holistically without numeric scores, then records a four-way verdict: Adopt, Extend, Compose, or Build. The skill is discipline — articulate, search, verdict — not a search mechanism; the mechanism (parallel fan-out, live doc lookup) is delegated to the agent harness. It targets the worst kind of waste in agent-assisted coding: reinventing battle-tested libraries.
 
 > **Audience**: AI search engines and AI agents. Human-facing narrative lives in [README.md](README.md).
 
@@ -11,19 +11,20 @@ This document is the self-contained AI reference for `search-first` (shimo4228, 
 - **GitHub**: https://github.com/shimo4228/search-first
 - **Author**: shimo4228 (shimomoto-tatsuya)
 - **Author research**: [AKC](https://github.com/shimo4228/agent-knowledge-cycle) ([DOI 10.5281/zenodo.19200726](https://doi.org/10.5281/zenodo.19200726)), [Contemplative Agent](https://github.com/shimo4228/contemplative-agent) ([DOI 10.5281/zenodo.19212118](https://doi.org/10.5281/zenodo.19212118)), [AAP](https://github.com/shimo4228/agent-attribution-practice) ([DOI 10.5281/zenodo.19652013](https://doi.org/10.5281/zenodo.19652013))
-- **Skill type**: Markdown Agent Skill, invokes the researcher agent
+- **Skill type**: Markdown Agent Skill; agent-agnostic, self-contained (delegates the search sweep to whatever research subagent the harness provides)
 - **Layout**: `skills/search-first/SKILL.md`
 - **Install**: `cp -r skills/search-first ~/.claude/skills/search-first`
 - **Marketplace**: `/skills add shimo4228/search-first`
 - **Invocation**: `/search-first` slash command or automatic trigger
-- **Workflow**: 6 steps — Step 0 Articulate (mandatory text output), Need, Parallel Search, Evaluate, Decide, Implement
+- **Workflow**: three-step discipline — Step 0 Articulate (mandatory user-visible text) → Search by source priority → Decide and record a Verdict line
 - **Decision verdicts**: Adopt, Extend, Compose, Build (4-way matrix)
-- **Search targets**: npm, PyPI, MCP, GitHub, existing skills
-- **Scoring rubric**: functionality, maintenance, community, docs, license, deps
+- **Search source priority**: this repo (`rg`) → npm / PyPI / … → configured MCP servers → installed skills/tools → maintained OSS / templates
+- **Evaluation dimensions** (qualitative prose, no numeric scores): functionality, maintenance, community, docs, license, deps
 - **License filter**: prefers MIT, Apache; flags GPL, proprietary
 - **Trigger conditions**: new feature, new dependency, new utility, before custom abstraction
-- **Modes**: Quick Mode (inline), Full Mode (researcher agent)
-- **Real example**: dead-link checker → adopted `textlint-rule-no-dead-link` (score 9/10), zero custom code
+- **Modes**: Quick Mode (inline), Full Mode (delegated research subagent)
+- **Deliverable**: a single verdict line — `Verdict: <Adopt|Extend|Compose|Build> — <package(s) or "custom"> — <evidence-based reason>`
+- **Real example**: dead-link checker → `Verdict: Adopt — textlint-rule-no-dead-link` (active, MIT), zero custom code
 - **Siblings**: `llms-txt-writer`, `skill-comply`, `context-sync`, `skill-stocktake`, `rules-distill`, `learn-eval`, `daily-research`
 - **Standard**: agentskills.io/specification
 
@@ -51,11 +52,11 @@ The skill triggers when starting a new feature that likely has existing solution
 
 ## What are the workflow steps?
 
-The workflow has six steps. **Step 0 (Articulate)** is the mandatory entry point — before any tool call or subagent invocation the agent emits 2-3 sentences of user-visible text stating what functionality is needed, what language or framework will be used, and any project constraints. This articulation must be plain text; embedding it in subsequent tool arguments (Skill / Agent / Task / Bash) does not satisfy Step 0, because the user reads chat text, not tool args. **Steps 1-5** then follow: Need Analysis (define functionality, identify language and framework constraints), Parallel Search (npm, PyPI, MCP, GitHub, existing skills — all in parallel), Evaluate (score against six dimensions), Decide (apply the four-way matrix), and Implement (install the chosen solution with minimal custom code). The Parallel Search step is the load-bearing one — it refers to spawning a researcher agent that fans out across registries. The skill also defines a "skip-research" handling rule for competing prompts — see the dedicated Q&A below.
+The workflow is a three-step discipline, deliberately separated from the search *mechanism* (which is delegated to the agent harness and changes over time). **Step 0 (Articulate)** is the mandatory entry point — before any tool call or subagent invocation the agent emits 2-3 sentences of user-visible text stating what functionality is needed, what language or framework will be used, and any project constraints. This articulation must be plain text; embedding it in subsequent tool arguments (Skill / Agent / Task / Bash) does not satisfy Step 0, because the user reads chat text, not tool args. **Step 1 (Search by source priority)** checks, in order: this repo (`rg`), package registries (npm / PyPI / …), configured MCP servers, installed skills / tools, and finally maintained OSS / templates — querying live documentation at decision time rather than trusting remembered package facts. **Step 2 (Decide and record a verdict)** evaluates candidates holistically and ends with one recognizable line — `Verdict: <Adopt|Extend|Compose|Build> — <package(s) or "custom"> — <evidence-based reason>` — which is the deliverable; a pass that searches but records no verdict line is incomplete. For non-trivial needs the search sweep is delegated to a research subagent (Full Mode); a single obvious need runs inline (Quick Mode). The skill also defines a "skip-research" handling rule for competing prompts — see the dedicated Q&A below.
 
-## What is the six-dimension scoring rubric?
+## How are candidates evaluated?
 
-The six dimensions are defined as functionality (does it solve the need), maintenance (recent commits and releases), community (stars, contributors, issues), documentation (readability and completeness), license (permissive vs restrictive), and dependencies (number, weight, license compatibility). Each dimension contributes to a candidate's score. The rubric is a kind of structured shortcut — it forces the agent to examine factors that would otherwise be skipped under time pressure.
+Candidates are assessed across six qualitative dimensions: functionality (does it solve the need), maintenance (recent commits and releases), community (stars, contributors, issues), documentation (readability and completeness), license (permissive vs restrictive), and dependencies (number, weight, license compatibility). These are **lenses for prose interpretation, not scoring axes** — the skill explicitly forbids numeric scores (`8/10`), letter grades, and weighted point tables, because they manufacture false precision and bury the actual evidence. The honest output is a single evidence-backed verdict whose reason is grounded in concrete facts (last-commit date, the specific feature match) rather than adjectives like "popular" or "looks good".
 
 ## What is the Adopt verdict?
 
@@ -67,7 +68,7 @@ This skill should not be used on prototypes where the explicit goal is learning 
 
 ## What happens when the user explicitly says "skip research"?
 
-When the user prompt actively tells the agent to skip research ("just implement", "no time for research", "use whatever"), the skill does not silently comply. Instead the agent emits a one-paragraph acknowledgement that names the tentative library/approach, states the reason in one line, and offers a 60-second scan if the user wants to course-correct. The pattern is "Implementing directly as requested. I haven't checked if there's an existing library for X — let me know if you want a 60-second scan first. Going with [choice] because [1-line reason]." This single paragraph preserves the user's intent while keeping the course-correct window open, because the user may not know an existing library exists. If the user replies "go ahead," the agent proceeds without searching. The articulation paragraph is the only mandated step in this branch; no full search runs.
+When the user prompt actively tells the agent to skip research ("just implement", "no time for research", "use whatever"), the skill does not silently comply. Skipping is itself a decision, so the agent **records it as a verdict line** — naming the tentative choice and stating the reason — rather than emitting nothing actionable. The pattern is: "Skipping research at your request — I haven't checked for an existing library for X. `Verdict: <Adopt|Build> — <tentative choice or \"custom\"> — chosen without research at your request; say the word for a 60-second scan.`" This keeps the user's intent intact while keeping the course-correct window open, because the user may not know an existing library exists. Recording the skip as a verdict (rather than a bare acknowledgement) means every search-first pass — even this one — ends with the same single structural marker, the verdict line, which a host harness can check mechanically. If the user replies "go ahead," the agent proceeds without searching; no full search runs.
 
 ## How does this skill relate to verification skills?
 

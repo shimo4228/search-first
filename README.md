@@ -23,11 +23,27 @@ cp -r skills/search-first ~/.claude/skills/search-first
 
 ## How It Works
 
-1. **Need Analysis** — Define what functionality is needed
-2. **Parallel Search** — Search npm/PyPI, MCP servers, GitHub, and existing skills
-3. **Evaluate** — Score candidates on functionality, maintenance, community, docs, license, and deps
-4. **Decide** — Adopt as-is, extend/wrap, compose multiple packages, or build custom
-5. **Implement** — Install the chosen solution with minimal custom code
+**Discipline, not mechanism.** The *how* of searching — parallel subagents, live
+doc lookup, registry queries — changes with your agent harness. This skill pins
+down the part that doesn't:
+
+1. **Articulate first (Step 0)** — before any tool call, state in plain text what
+   functionality is needed, the language/framework, and any constraints. This
+   externalizes the query so you can be redirected early, and leaves an auditable record.
+2. **Search by source priority** — this repo first (`rg`), then package registries
+   (npm / PyPI / …), configured MCP servers, installed skills/tools, and finally
+   maintained OSS / templates. Query live docs at decision time rather than trusting
+   remembered package facts.
+3. **Decide, and record a verdict** — assess candidates holistically (functional fit,
+   maintenance, community, docs, license, deps) in prose. **No numeric scores or
+   grades** — they manufacture false precision. End with one recognizable line:
+   `Verdict: <Adopt|Extend|Compose|Build> — <package(s) or "custom"> — <evidence-based reason>`
+
+For non-trivial needs, delegate the search sweep to whatever research subagent your
+harness provides (Full Mode); run it inline for a single obvious need (Quick Mode).
+When the user says "don't research", skipping is itself a decision — record it as a
+verdict line (`chosen without research at your request`) instead of silently
+complying, so they can still course-correct before you build.
 
 ## When It Triggers
 
@@ -44,15 +60,18 @@ cp -r skills/search-first ~/.claude/skills/search-first
 | Multiple weak matches | **Compose** — combine 2-3 small packages |
 | Nothing suitable found | **Build** — write custom, but informed by research |
 
-## Examples
+## Example
 
 ```
-Need: Check markdown files for broken links
-Search: npm "markdown dead link checker"
-Found: textlint-rule-no-dead-link (score: 9/10)
-Action: ADOPT — npm install textlint-rule-no-dead-link
-Result: Zero custom code, battle-tested solution
+Need: Check markdown files for broken links (Node project, MIT-compatible only)
+Search: this repo → npm "markdown dead link checker"
+Found: textlint-rule-no-dead-link — active maintenance, MIT, covers all link types
+Verdict: Adopt — textlint-rule-no-dead-link — active, MIT, full coverage
+Result: zero custom code, battle-tested solution
 ```
+
+The verdict is recorded as a single line — evidence, not a score. A pass that
+searches but records no verdict line is incomplete.
 
 ## About this skill
 
