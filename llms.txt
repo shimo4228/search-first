@@ -1,19 +1,23 @@
 # search-first
 
-> A Claude Code skill (MIT) that enforces a research-before-coding workflow. Before writing custom code, the agent searches npm, PyPI, MCP registries, GitHub, and existing skills in parallel, then makes an informed Adopt / Extend / Compose / Build decision.
+> A Claude Code skill (MIT) that enforces a research-before-coding workflow. Before writing custom code, the agent articulates the requirement as text, searches by source priority (this repo, npm, PyPI, MCP registries, installed skills, GitHub), then records an informed Adopt / Extend / Compose / Build verdict. The skill is discipline (articulate → search → verdict), not search mechanism — the latter is delegated to the agent harness.
 
 ## Core documentation
 
 - [llms-full.txt](llms-full.txt): self-contained Q&A reference for AI agents (Project Facts, Prior Research, 9 question-form H2 sections)
 - [README.md](README.md): human-facing narrative (install, decision matrix, worked example)
-- [SKILL.md](skills/search-first/SKILL.md): full skill specification — trigger conditions, 6-step workflow (Step 0 articulation + 5-step decision pipeline), decision matrix, quick mode vs full mode, skip-research handling
+- [SKILL.md](skills/search-first/SKILL.md): full skill specification — trigger conditions, the three-step discipline (Step 0 articulation → search by source priority → decide & record a verdict line), decision matrix, quick mode vs full mode, skip-research handling
 
 ## Architecture
 
-- 6-step workflow: **Step 0 Articulate** (mandatory user-visible text output before any tool call) → 1. Need Analysis → 2. Parallel Search → 3. Evaluate → 4. Decide → 5. Implement
-- 4-way decision matrix: **Adopt** (exact match, well-maintained, MIT/Apache), **Extend** (partial match, thin wrapper), **Compose** (multiple small packages), **Build** (nothing suitable, informed by research)
-- Parallel search targets: npm registry, PyPI, MCP servers, GitHub, existing skills
-- Skip-research handling: when the user explicitly says "don't research", the agent emits a one-paragraph trade-off acknowledgement instead of silent skip — preserves the user's intent while keeping the course-correct window open
+- Three-step discipline (not a search mechanism — the *how* of searching is delegated to the agent harness):
+  - **Step 0 — Articulate** the requirement as mandatory user-visible text before any tool call
+  - **Step 1 — Search by source priority**: this repo (`rg`) → package registries (npm / PyPI / …) → configured MCP servers → installed skills/tools → maintained OSS / templates; query live docs at decision time
+  - **Step 2 — Decide and record a Verdict line**: `Verdict: <Adopt|Extend|Compose|Build> — <package(s) or "custom"> — <evidence-based reason>`. A pass with no verdict line is incomplete.
+- 4-way decision matrix: **Adopt** (exact match, well-maintained, permissive license), **Extend** (partial match, thin wrapper), **Compose** (multiple small packages), **Build** (nothing suitable, informed by research)
+- Evaluation is qualitative prose — **no numeric scores, grades, or weighted tables** (they manufacture false precision)
+- Modes: **Quick Mode** (inline) for a single obvious need; **Full Mode** delegates the search sweep to whatever research subagent the harness provides
+- Skip-research handling: when the user explicitly says "don't research", skipping is itself a decision — the agent records it as a verdict line (`Verdict: <Adopt|Build> — <choice> — chosen without research at your request`) instead of a silent skip, preserving the user's intent while keeping the course-correct window open (and keeping a single structural marker — the verdict line — for every pass)
 
 ## Standard reference
 

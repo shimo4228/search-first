@@ -12,6 +12,41 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
   otherwise. The previous URL redirects to the new one.
 - Added a `compatibility` frontmatter field (per the Agent Skills spec).
 - Updated sibling cross-references to the renamed sibling repositories.
+- **Restructured `SKILL.md` to lead with discipline, not mechanism.** The skill
+  now opens with the Step 0 articulation gate, a source-priority search checklist
+  (this repo → registries → MCP → installed skills/tools → maintained OSS), and a
+  recorded verdict, and **delegates the search mechanism** (parallel fan-out, live
+  doc lookup) to the agent harness instead of hardcoding it. Rationale: a
+  Research-phase skill's search *mechanism* is what the platform absorbs first, so
+  re-specifying it ages fast and can shadow newer harness defaults; the durable
+  value is the operator discipline (articulate → search by priority → verdict).
+  - Removed the ASCII fan-out diagram, the stale
+    `Task/Agent(subagent_type="general-purpose")` snippet, and the package-shortcut
+    list (fast-aging, presented stale endorsements as fact).
+  - Made the skill **agent-agnostic and self-contained**: removed harness-specific
+    agent names (`scout`, `planner`, etc.) from the body so it installs and reads
+    standalone (Agent Skills portability). Any binding to a specific executor agent
+    belongs in the host harness's planning rule, not in the portable skill.
+  - Reframed worked examples as "how a verdict reads," not current endorsements.
+- **Added a mandatory verdict-line deliverable.** Every pass must end with
+  `Verdict: <Adopt|Extend|Compose|Build> — <package(s) or "custom"> — <evidence-based reason>`.
+  A search with no verdict line is an incomplete pass — the agent did the work but
+  recorded no decision the next step can act on. The **skip-research branch also
+  emits a verdict** (`chosen without research at your request`), so *every* path
+  produces the same marker. (A cross-model review caught that an earlier draft left
+  the skip branch verdict-less, which would have false-flagged legitimate skips
+  against the companion hook below.)
+- **Synced `README.md` / `README.ja.md` / `llms.txt` / `llms-full.txt`** to the
+  restructured skill. Removed the numeric-scoring example (`score: 9/10`) and the
+  "six-dimension scoring rubric" framing, which contradicted the skill's explicit
+  no-scores rule (evaluation is qualitative prose, not a graded table).
+
+### Companion (harness-side, optional)
+- The verdict-line convention is machine-checkable: a small Stop hook can read the
+  session transcript and, when `/search-first` was invoked but no `Verdict:` line
+  followed, remind (or, opt-in, block) — structural enforcement of a structural
+  property, leaving verdict *quality* to judgment. This hook lives in the host
+  harness, not in this repo (the skill stays portable; the enforcement is local).
 
 ## [1.0.1] — 2026-05-20
 
